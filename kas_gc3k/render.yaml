@@ -4,6 +4,7 @@ services:
     env: python
     buildCommand: "pip install -r requirements.txt"
     startCommand: "gunicorn kas_gc3k.wsgi:application"
+    staticPublishPath: staticfiles
     envVars:
       - key: DATABASE_URL
         value: postgresql://postgres:QnRPWwikGkSSISFVJwVSsrSckYXUzFqU@switchback.proxy.rlwy.net:14973/railway
