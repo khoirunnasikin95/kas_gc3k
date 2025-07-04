@@ -1,0 +1,9 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <p><input type="file" name="excel_file" required></p>
+    <button type="submit" class="default">Upload</button>
+  </form>
+  <p><a href="..">⬅ Kembali</a></p>
+{% endblock %}

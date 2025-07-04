@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: kas-gc3k
+    env: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn kas_gc3k.wsgi:application"
+    envVars:
+      - key: DATABASE_URL
+        value: postgresql://postgres:QnRPWwikGkSSISFVJwVSsrSckYXUzFqU@switchback.proxy.rlwy.net:14973/railway

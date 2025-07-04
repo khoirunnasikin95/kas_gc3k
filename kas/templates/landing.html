@@ -1,0 +1,335 @@
+{% load humanize %}
+{% load static %}
+<!DOCTYPE html> 
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard Kas</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: url("{% static 'kas/gc3k.png' %}") no-repeat center center fixed;
+      background-size: cover;
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    .glass-card {
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 10px;
+      padding: 80px 1rem 2rem;
+      color: #fff;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      position: relative;
+      margin-top: 40px;
+    }
+
+    .card-custom {
+      border-radius: 1rem;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.15);
+      width: 100%;
+    }
+
+    .saldo-card {
+      background-color: #d0ebff !important;
+      color: #084298;
+    }
+
+    .sudah-card {
+      background-color: #d3f9d8 !important;
+      color: #2b8a3e;
+    }
+
+    .segera-card {
+      background-color: #fff3bf !important;
+      color: #927f00;
+    }
+
+    .floating-inside {
+      position: absolute;
+      top: -50px;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      z-index: 10;
+    }
+
+    .judul-dashboard {
+      background: rgba(255, 255, 255, 0.6);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 1rem 2rem;
+      border-radius: 1rem;
+      display: inline-block;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+    }
+
+    .judul-dashboard h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      margin: 0;
+      color: #084298;
+    }
+
+    .card-title-saldo {
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 2px;
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+
+    .card-nominal-saldo {
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 6px;
+      color: inherit;
+    }
+
+    .card-rincian-saldo {
+      font-size: 0.75rem;
+      color: #333;
+    }
+
+    .card-rincian-saldo .plus {
+      color: #198754;
+      font-weight: 500;
+    }
+
+    .card-rincian-saldo .minus {
+      color: #dc3545;
+      font-weight: 500;
+    }
+
+    .btn-primary {
+      background-color: #0d6efd !important;
+      border-color: #0d6efd !important;
+    }
+
+    .btn-primary:hover {
+      background-color: #0b5ed7 !important;
+      border-color: #0a58ca !important;
+    }
+
+    footer {
+      background-color: #0d6efd;
+      color: #fff;
+      text-align: center;
+      padding: 10px 0;
+      margin-top: auto;
+    }
+
+    @media (max-width: 768px) {
+      .floating-inside {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .form-floating-mobile {
+        margin-top: 280px !important;
+        padding: 0 1rem;
+      }
+    }
+  </style>
+</head>
+<body class="text-white">
+
+  <main class="container my-4">
+  <div class="glass-card">
+
+  <!-- CARD FLOATING -->
+  <div class="floating-inside">
+    <div class="card card-custom saldo-card text-center p-3" style="max-width: 18rem;">
+        <div class="card-title-saldo">SISA SALDO KESELURUHAN</div>
+        <div class="card-nominal-saldo">Rp {{ sisa_saldo_all|intcomma }}</div>
+        <div class="card-rincian-saldo">
+            <span class="plus">+ Rp {{ saldo_all|intcomma }}</span> |
+            <span class="minus">- Rp {{ total_keluar_all|intcomma }}</span>
+        </div>
+        </div>
+    <div class="card card-custom sudah-card text-center p-3" style="max-width: 18rem;">
+      <div class="card-title-saldo">SUDAH DITEMPATI</div>
+      <div class="card-nominal-saldo">{{ rumah_sudah }} Rumah</div>
+      <div class="card-rincian-saldo">
+        <span class="plus">✅ Penghuni Aktif</span>
+      </div>
+    </div>
+    <div class="card card-custom segera-card text-center p-3" style="max-width: 18rem;">
+      <div class="card-title-saldo">SEGERA DITEMPATI</div>
+      <div class="card-nominal-saldo">{{ rumah_segera }} Rumah</div>
+      <div class="card-rincian-saldo">
+        <span class="minus">⏳ Proses Masuk</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form Filter -->
+  <form class="row g-3 mb-4 mt-5 pt-3 justify-content-center form-floating-mobile" method="get">
+    <div class="col-12 col-md-3">
+      <select class="form-select" name="bulan">
+        {% for b in bulan_list %}
+          <option value="{{ b }}" {% if b == bulan %}selected{% endif %}>{{ b }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-12 col-md-3">
+      <select class="form-select" name="tahun">
+        {% for y in tahun_list %}
+          <option value="{{ y }}" {% if y == tahun %}selected{% endif %}>{{ y }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-12 col-md-3">
+      <button type="submit" class="btn btn-primary w-100">Tampilkan</button>
+    </div>
+  </form>
+  <header class="text-center py-4">
+      <h1>Dashboard Kas Bulan {{ bulan }} {{ tahun }}</h1>
+  </header>
+  
+<!-- Tabel Pembayaran -->
+<h4 class="mt-5 text-white">📑 Detail Pembayaran Iuran Bulan Ini</h4>
+<div class="table-responsive mb-4"
+     style="border-radius: 15px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.2);">
+
+  <table class="table table-hover table-bordered text-white mb-0"
+         style="background: rgba(255, 255, 255, 0.05);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                border-radius: 15px;">
+
+    <thead style="background-color: rgba(255,255,255,0.1);" class="text-uppercase text-white-50">
+      <tr>
+        <th>No.</th><th>Blok</th><th>Nama</th><th>Status ditempati</th><th>Sampah</th><th>Dansos</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {% for p in pembayaran %}
+      <tr>
+        <td>{{ forloop.counter }}</td>
+        <td>{{ p.rumah.blok }}</td>
+        <td>{{ p.rumah.nama }}</td>
+        <td>
+          {% if p.rumah.status == 'sudah' %}
+            <span class="badge bg-success">Sudah</span>
+          {% elif p.rumah.status == 'segera' %}
+            <span class="badge bg-warning text-dark">Segera</span>
+          {% else %}
+            <span class="badge bg-secondary">Belum</span>
+          {% endif %}
+        </td>
+        <td>Rp {{ p.iuran_sampah|intcomma }}</td>
+        <td>Rp {{ p.iuran_dansos|intcomma }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+
+  <tfoot>
+  <tr style="background-color: rgba(255, 255, 255, 0.1);" class="text-white fw-bold">
+    <td colspan="4" class="text-end">TOTAL IURAN BULAN {{ bulan|upper }}:</td>
+    <td>Rp {{ total_iuran_sampah|intcomma }}</td>
+    <td>Rp {{ total_iuran_dansos|intcomma }}</td>
+  </tr>
+</tfoot>
+  </table>
+</div>
+
+
+ <!-- Tabel Transaksi -->
+<h4 class="mt-5 text-white">📑 Riwayat Transaksi Bulan Ini</h4>
+
+<div class="table-responsive mb-4"
+     style="border-radius: 15px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.2);">
+
+  <table class="table table-bordered table-hover mb-0"
+         style="background: rgba(255, 255, 255, 0.05);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                border-radius: 15px;">
+
+    <thead style="background-color: rgba(255,255,255,0.1);" class="text-white-50 text-uppercase">
+      <tr>
+        <th>No.</th>
+        <th>Jenis</th>
+        <th>Nominal</th>
+        <th>Keterangan</th>
+        <th>Tanggal</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {% for t in transaksi %}
+      <tr class="text-white">
+        <td>{{ forloop.counter }}</td>
+        <td>
+          {% if t.jenis == 'masuk' %}
+            <span class="badge bg-success">Pemasukan</span>
+          {% else %}
+            <span class="badge bg-danger">Pengeluaran</span>
+          {% endif %}
+        </td>
+        <td>Rp {{ t.nominal|intcomma }}</td>
+        <td>{{ t.keterangan }}</td>
+        <td>{{ t.tanggal|date:"d M Y" }}</td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="5" class="text-center text-muted">Belum ada transaksi bulan ini</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+
+    <tfoot>
+      <tr style="background-color: rgba(255, 255, 255, 0.1);" class="text-white fw-bold">
+        <td colspan="2" class="text-end">TOTAL PEMASUKAN:</td>
+        <td colspan="3">Rp {{ total_masuk|default:"0"|intcomma }}</td>
+      </tr>
+      <tr style="background-color: rgba(255, 255, 255, 0.1);" class="text-white fw-bold">
+        <td colspan="2" class="text-end">TOTAL PENGELUARAN:</td>
+        <td colspan="3">Rp {{ total_keluar|default:"0"|intcomma }}</td>
+      </tr>
+    </tfoot>
+  </table>
+</div>
+
+
+  <!-- Tombol Ekspor -->
+  <div class="d-flex flex-wrap justify-content-center gap-3">
+    <form method="get" action="{% url 'export_excel' %}">
+      <input type="hidden" name="bulan" value="{{ bulan }}">
+      <input type="hidden" name="tahun" value="{{ tahun }}">
+      <button class="btn btn-success">📥 Export ke Excel (bulan ini)</button>
+    </form>
+    <form method="get" action="{% url 'export_rekap_keseluruhan' %}">
+      <button class="btn btn-secondary">📂 Rekap Keseluruhan Excel</button>
+    </form>
+    <form method="get" action="{% url 'export_wa' %}">
+      <input type="hidden" name="bulan" value="{{ bulan }}">
+      <input type="hidden" name="tahun" value="{{ tahun }}">
+      <button class="btn btn-info">💬 Copy Laporan WhatsApp</button>
+    </form>
+    <a href="/admin" class="btn btn-outline-light" title="Masuk Panel Admin">🔐 Login Admin</a>
+  </div>
+
+</div>
+</main>
+
+<footer>
+  &copy; 2025 | desainIkin
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,4 @@
+Username (leave blank to use 'ryta'): admin
+Email address: admin@admin.com
+Password: admin
+Password (again): admin
