@@ -3,6 +3,9 @@
 <!DOCTYPE html> 
 <html lang="id">
 <head>
+  <!-- DataTables CSS -->
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css">
   <meta charset="UTF-8">
   <title>Dashboard Kas</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -143,6 +146,10 @@
       }
     }
   </style>
+    <!-- jQuery + DataTables JS -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
 </head>
 <body class="text-white">
 
@@ -201,51 +208,51 @@
   
 <!-- Tabel Pembayaran -->
 <h4 class="mt-5 text-white">📑 Detail Pembayaran Iuran Bulan Ini</h4>
-<div class="table-responsive mb-4"
-     style="border-radius: 15px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.2);">
+<table id="tabel-pembayaran" class="table display responsive nowrap text-white" style="width:100%">
+  <thead>
+    <tr>
+      <th>No.</th><th>Blok</th><th>Nama</th><th>Status</th><th>Sampah</th><th>Dansos</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for p in pembayaran %}
+    <tr>
+      <td>{{ forloop.counter }}</td>
+      <td>{{ p.rumah.blok }}</td>
+      <td>{{ p.rumah.nama }}</td>
+      <td>
+        {% if p.rumah.status == 'sudah' %}
+          <span class="badge bg-success">Sudah</span>
+        {% elif p.rumah.status == 'segera' %}
+          <span class="badge bg-warning text-dark">Segera</span>
+        {% else %}
+          <span class="badge bg-secondary">Belum</span>
+        {% endif %}
+      </td>
+      <td>Rp {{ p.iuran_sampah|intcomma }}</td>
+      <td>Rp {{ p.iuran_dansos|intcomma }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<script>
+  $(document).ready(function() {
+    $('#tabel-pembayaran').DataTable({
+      responsive: true,
+      language: {
+        search: "Cari:",
+        lengthMenu: "Tampilkan _MENU_ entri",
+        info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ entri",
+        paginate: {
+          previous: "Sebelumnya",
+          next: "Berikutnya"
+        },
+        zeroRecords: "Tidak ditemukan data yang cocok"
+      }
+    });
+  });
+</script>
 
-  <table class="table table-hover table-bordered text-white mb-0"
-         style="background: rgba(255, 255, 255, 0.05);
-                backdrop-filter: blur(10px);
-                -webkit-backdrop-filter: blur(10px);
-                border-radius: 15px;">
-
-    <thead style="background-color: rgba(255,255,255,0.1);" class="text-uppercase text-white-50">
-      <tr>
-        <th>No.</th><th>Blok</th><th>Nama</th><th>Status ditempati</th><th>Sampah</th><th>Dansos</th>
-      </tr>
-    </thead>
-
-    <tbody>
-      {% for p in pembayaran %}
-      <tr>
-        <td>{{ forloop.counter }}</td>
-        <td>{{ p.rumah.blok }}</td>
-        <td>{{ p.rumah.nama }}</td>
-        <td>
-          {% if p.rumah.status == 'sudah' %}
-            <span class="badge bg-success">Sudah</span>
-          {% elif p.rumah.status == 'segera' %}
-            <span class="badge bg-warning text-dark">Segera</span>
-          {% else %}
-            <span class="badge bg-secondary">Belum</span>
-          {% endif %}
-        </td>
-        <td>Rp {{ p.iuran_sampah|intcomma }}</td>
-        <td>Rp {{ p.iuran_dansos|intcomma }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-
-  <tfoot>
-  <tr style="background-color: rgba(255, 255, 255, 0.1);" class="text-white fw-bold">
-    <td colspan="4" class="text-end">TOTAL IURAN BULAN {{ bulan|upper }}:</td>
-    <td>Rp {{ total_iuran_sampah|intcomma }}</td>
-    <td>Rp {{ total_iuran_dansos|intcomma }}</td>
-  </tr>
-</tfoot>
-  </table>
-</div>
 
 
  <!-- Tabel Transaksi -->
